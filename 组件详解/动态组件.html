@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 36px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <component :is="componentId"></component>
+    <input type="button" value="切换到A" @click="toggleComponent('A')">
+    <input type="button" value="切换到B" @click="toggleComponent('B')">
+    <input type="button" value="切换到C" @click="toggleComponent('C')">
+  </div>
+  <script src="../vue.js"></script>
+  <script src="../js/easy.js"></script>
+  <script>
+    Vue.component('componentA', { template: '<div>componentA</div>'});
+    Vue.component('componentB', { template: '<div>componentB</div>'});
+    Vue.component('componentC', { template: '<div>componentC</div>'});
+    var app = new Vue({
+      el: '#app',
+      data: {
+        componentId: 'componentA'
+      },
+      methods: {
+        toggleComponent: function (name) {
+          this.componentId = 'component' + name;
+        }
+      },
+      computed: {
+
+      },
+      mounted: function() {
+
+      }
+    });
+  </script>
+</body>
+</html>

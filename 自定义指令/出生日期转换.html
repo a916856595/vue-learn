@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 36px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <span>出生时长:</span>
+    <span v-birthday="time"></span>
+  </div>
+  <script src="../vue.js"></script>
+  <script src="../js/easy.js"></script>
+  <script>
+    var timeObj = {
+      getCurrentUnix: function () {
+        var time = new Date();
+        return time.getTime(); 
+      },
+      getTodayUnix: function () {
+        var time = new Date();
+        time.setHours(0);
+        time.setMinutes(0);
+        time.setSeconds(0);
+        time.setMilliseconds(0);
+        return time.getTime(); 
+      },
+      getYearResidueDay: function (timeToComputed) {
+        var time = new Date(timeToComputed);
+        time.setMonth(0);
+        time.setDate(1);
+        var time2 = time.getTime();
+        return Math.ceil((timeToComputed - time2) / (24 * 3600000));
+      }
+    };
+
+    Vue.directive('birthday', {
+      bind: function (ele, binding) {
+        var now = timeObj.getCurrentUnix();
+        var toyear = new Date(now).getFullYear();
+        var intervalTime = Math.floor((now - binding.value) / 1000);
+        var yearInterval = toyear - new Date(binding.value).getFullYear();
+        var result = '';
+        if (yearInterval > 0) {
+          var dayInterval = timeObj.getYearResidueDay(new Date().getTime()) - timeObj.getYearResidueDay(binding.value);
+          result = yearInterval;
+          if (dayInterval === 0) {
+            result = '刚好' + result + '年';
+          } else if (dayInterval > 0) {
+            result = yearInterval + '年' + dayInterval + '天';
+          } else {
+            var is366 = (toyear % 4 === 0 && toyear % 100 !== 0) || toyear % 400 === 0;
+            var days = is366 ? 366 : 365;
+            result = yearInterval - 1 + '年' + (days + dayInterval) + '天';
+          }
+          
+        } else {
+          if (intervalTime <= 0) {
+          result = '刚刚出生';
+          } else {
+            result += Math.ceil(intervalTime / ( 24 * 3600 )) + '天';
+          }
+        }
+        ele.innerText = result;
+      },
+      unbind: function () {
+
+      }
+    });
+    var app = new Vue({
+      el: '#app',
+      data: {
+        time: 771906210000
+      },
+      methods: {
+
+      },
+      computed: {
+
+      },
+      mounted: function() {
+
+      }
+    });
+  </script>
+</body>
+</html>

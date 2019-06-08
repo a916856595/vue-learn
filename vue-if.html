@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <p v-if="val === 1">展示1</p>
+    <p v-else-if="val === 2">展示2</p>
+    <p v-else>展示3</p>
+
+    <div>
+      <!-- 这里的template标签不会被带入页面 -->
+      <template v-if="val === 1">
+        <p>展示1s</p>
+        <p>展示1s</p>
+        <p>展示1s</p>
+      </template>
+      <template v-else-if="val === 2">
+        <p>展示2s</p>
+        <p>展示2s</p>
+        <p>展示2s</p>
+      </template>
+      <template v-else>
+        <p>展示3s</p>
+        <p>展示3s</p>
+        <p>展示3s</p>
+      </template>
+    </div>
+  </div>
+  
+  <script src="./vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        val: 3
+      }
+    });
+  </script>
+</body>
+</html>

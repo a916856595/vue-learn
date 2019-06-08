@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 36px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <style>
+    .tab-body {
+      width: 150px;
+      overflow-x: hidden;
+    }
+    .transition {
+      transition: .5s;
+    }
+    .x150 {
+      transform: translateX(150px);
+    }
+    .fade-enter-active, .fade-leave-active {
+      transition: translateX .5s
+    }
+    .fade-enter, .fade-leave-active {
+      transform: translateX(-100px)
+    }
+  </style>
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <tab value="1">
+      <tab-item v-for="tabInfo in tabData" :lab="tabInfo.lab" :name="tabInfo.name" v-text="tabInfo.content" :closable="tabInfo.closable">
+      </tab-item>
+    </tab>
+    
+  </div>
+  <script src="../vue.js"></script>
+  <script src="../js/easy.js"></script>
+  <script>
+    Vue.component('tab', {
+      name: 'tab',
+      template: `
+        <div>
+          <div class="tab-header clearfix">
+              <span v-for="(navItem, navIndex) in navList" v-bind:key="navIndex">
+                <span @click="chooseTabItem(navIndex)" v-text="navItem.lab" :class="['posr', 'pd-r', {'red': navItem.name  === currentShowIndex}]"></span>
+                <span class="pd-r" v-if="navItem.closable" @click="deleteTabItem(navIndex, navItem)">×</span>
+              </span>
+          </div>
+          <div class="tab-body">
+              <slot></slot>
+          </div>
+        </div>
+      `,
+      data: function () {
+        return {
+          navList: [],
+          currentShowIndex: '1'
+        };
+      },
+      props: {
+        value: {
+          type: [Number, String]
+        }
+      },
+      methods: {
+        getTabChildren: function () {
+          return this.$children.filter(function (item) {
+            return item.$options.name === 'tab-item';
+          });
+        },
+        getNavList: function () {
+          var _this = this;
+          var childrenList = this.getTabChildren();
+          var length = childrenList.length;
+          var flag = false;
+          this.navList = childrenList.map(function (item, index) {
+            item.name = item.name || index;
+            if (index === 0) _this.currentShowIndex = null;
+            if (_this.value === item.name) flag = true;
+            return {
+              lab: item.lab,
+              name: item.name,
+              closable: item.closable
+            }  
+          });
+          this.currentShowIndex = flag ? this.value : this.navList[0].name;
+          this.updateTabItemShowStatus()
+        },
+        updateTabItemShowStatus: function () {
+          var _this = this;
+          var childrenList = this.getTabChildren();
+          childrenList.forEach(function (item) {
+            item.isShow = item.name === _this.currentShowIndex;
+          });
+        },
+        chooseTabItem: function (index) {
+          this.currentShowIndex = this.navList[index].name;
+          this.updateTabItemShowStatus();
+        },
+        updateNav: function () {
+          this.getNavList();
+        },
+        deleteTabItem: function (indexToDelete, tabItem) {
+          var _this = this;
+          var childrenList = this.getTabChildren();
+          this.navList.splice(indexToDelete, 1);
+          childrenList.forEach(function (item, index) {
+            if (index === indexToDelete) item.isExist = false;
+          });
+          if (this.currentShowIndex === tabItem.name) this.currentShowIndex = this.navList[0].name;
+          this.updateTabItemShowStatus();
+        }
+      },
+      mounted: function () {
+        this.getNavList();
+      }
+    });
+
+    Vue.component('tab-item', {
+      name: 'tab-item',
+      template: `
+      <div v-if="isExist" :class="['transition', {'x150': !isShow}]">
+        <slot></slot>
+      </div>
+      `,
+      props: {
+        lab: { type: String, default: '' },
+        name: { type: String },
+        closable: { type: [Boolean, undefined] }
+      },
+      data: function () {
+        return {
+          isShow: false,
+          isExist: true
+        };
+      },
+      methods: {
+        updataFather: function () {
+          this.$parent.updateNav && this.$parent.updateNav();
+        }
+      },
+      mounted: function () {
+        this.updataFather();
+      },
+      watch: {
+        lab: function () {
+          this.$parent.updateNav && this.$parent.updateNav();
+        },
+        name: function () {
+          this.$parent.updateNav && this.$parent.updateNav();
+        }
+      }
+    })
+    var app = new Vue({
+      el: '#app',
+      data: {
+        tabData: [{
+          name: '1',
+          lab: '标签页1',
+          content: '标签页1的内容'
+        },{
+          name: '2',
+          lab: '标签页2',
+          content: '标签页2的内容',
+          closable: true
+        },{
+          name: '3',
+          lab: '标签页3',
+          content: '标签页3的内容'
+        }]
+      },
+      methods: {
+
+      },
+      computed: {
+
+      },
+      mounted: function() {
+        var _this = this;
+        // setTimeout(function () {
+        //   _this.tabData = [{
+        //   name: '4',
+        //   lab: '标签页4',
+        //   content: '标签页4的内容'
+        // },{
+        //   name: '5',
+        //   lab: '标签页5',
+        //   content: '标签页5的内容'
+        // },{
+        //   name: '6',
+        //   lab: '标签页6',
+        //   content: '标签页6的内容'
+        // }];
+        // }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>

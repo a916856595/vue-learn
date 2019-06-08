@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 36px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+  <div id="app" class="clearfix">
+    <div class="w50 fl">
+      <p>商品列表</p>
+      <ul class="clearfix" v-if="productList.length">
+        <li class="fl mg-r mg-b" v-for="product in productList">
+          <p>
+            <span>名称:</span>
+            <span v-text="product.productName"></span>
+          </p>
+          <p>
+            <span>价格:</span>
+            <span v-text="product.price"></span>
+          </p>
+          <button @click="buyProduct(product)">
+            <span>点击购买</span>
+          </button>
+        </li>
+      </ul>
+      <p v-if="!productList.length">商品都被买光啦</p>
+    </div>
+    <div class="w50 fl">
+      <p>购物车</p>
+      <ul class="clearfix" v-if="chosenProductList.length">
+        <li class="fl mg-r  mg-b" v-for="product in chosenProductList">
+          <p>
+            <span>名称:</span>
+            <span v-text="product.productName"></span>
+          </p>
+          <p>
+            <span>价格:</span>
+            <span v-text="product.price"></span>
+          </p>
+          <p>
+            <input type="button" value="-" @click="reduceProduct(product)">
+            <span>数量:</span>
+            <span v-text="product.number"></span>
+            <input type="button" value="+" @click="addProduct(product)">
+          </p>
+          <input type="button" value="删除" @click="deleteProduct(product)">
+          <p>
+            <span>总价:</span>
+            <span v-text="product.price * product.number"></span>
+          </p>
+        </li>
+      </ul>
+      <p v-if="!chosenProductList.length">购物车空空如也</p>
+      <p v-if="chosenProductList.length">
+        <span>全部商品总价:</span>
+        <span v-text="totalPrice"></span>
+      </p>
+    </div>
+  </div>
+  
+  <script src="./vue.js"></script>
+  <script src="./js/easy.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        productListOrigin: [{
+          id: 1,
+          productName: '键盘',
+          price: 600
+        },{
+          id: 2,
+          productName: '鼠标',
+          price: 100
+        }, {
+          id: 3,
+          productName: '显示器',
+          price: 700
+        }],
+        productList: [],
+        chosenProductList: []
+      },
+      methods: {
+        buyProduct: function (product) {
+          var isExist = false;
+          if (!this.chosenProductList.length) {
+            isExist = false;
+          } else {
+            for (var index = 0; index < this.chosenProductList.length; index++) {
+              if (this.chosenProductList[index].id === product.id) {
+                isNotExist = true;
+              }
+            }
+          }
+          if (!isExist) {
+            var cloneProduct = $.cloneDeep(product);
+            console.log('clone')
+            cloneProduct.number = 1;
+            this.chosenProductList.push(cloneProduct);
+            var indexTodelete = $.findIndex(this.productList, function (item) { return item.id === product.id; });
+            console.log('find')
+            this.productList.splice(indexTodelete, 1);
+          }
+        },
+        reduceProduct: function (product) {
+          if (product.number > 1) {
+            product.number --;
+          } else {
+            this.deleteProduct(product);
+          }
+        },
+        addProduct: function (product) {
+          product.number ++;
+        },
+        deleteProduct: function (product) {
+          var indexToDelete = $.findIndex(this.chosenProductList, function (item) { return item.id === product.id; });
+          var indexToAdd = $.findIndex(this.productListOrigin, function (item) { return item.id === product.id; });
+          this.chosenProductList.splice(indexToDelete, 1);
+          this.productList.push($.cloneDeep(this.productListOrigin[indexToAdd]));
+        }
+      },
+      computed: {
+        totalPrice: function () {
+          if (this.chosenProductList.length) {
+            var price = 0;
+            $.forEach(this.chosenProductList, function (item) {
+              price += item.price * item.number;
+            });
+            return price;
+          } else {
+            return 0;
+          }
+        }
+      },
+      mounted: function () {
+        this.productList = $.cloneDeep(this.productListOrigin);
+      }
+    });
+  </script>
+</body>
+</html>

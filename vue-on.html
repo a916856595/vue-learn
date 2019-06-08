@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <p>
+      <input type="button" @click="consoleEvent" value="没有传入$event的按钮">   <!--这里vue会自动传入$event-->
+      <input type="button" @click="consoleEvent(11, $event)" value="传入$event的按钮">
+    </p>
+  </div>
+  
+  <script src="./vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+      
+      },
+      methods: {
+        consoleEvent: function (val, event) {
+          console.log(val)
+          console.log(event)
+        }
+      },
+      computed: {
+
+      },
+      mounted: function() {
+
+      }
+    });
+  </script>
+</body>
+</html>

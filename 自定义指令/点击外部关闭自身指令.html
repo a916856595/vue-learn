@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 36px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <title>Document</title>
+  <style>
+    .father {
+      width: 500px;
+      height: 500px;
+      background-color: green;
+    }
+    button {
+      border: none;
+      background-color: #fff;
+    }
+    button p {
+        border: 1px solid #999;
+        background-color: #ddd;
+    }
+    .content ul {
+      border: 1px solid #999;
+    }
+    .content ul li:not(:last-child) {
+      border-bottom: 1px solid #999;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="father">
+        <button v-cloak v-click-outside-to-close.esc="closeMenu" v-if="isShowMenu">
+            <p @click="toggleShow()">点我展开菜单</p>
+            <div class="content">
+              <ul v-if="isShow">
+                <li>菜单1</li>
+                <li>菜单2</li>
+                <li>菜单3</li>
+              </ul>
+            </div>
+          </button>
+          <button @click="toggleMenu()">
+            <span>点击切换展示菜单</span>
+          </button>
+    </div>
+  </div>
+  <script src="../vue.js"></script>
+  <script src="../js/easy.js"></script>
+  <script>
+    function bindEvent(ele,binding) {
+      function clickDocument(event) {
+          if (!event.target.contains(ele)) return;
+          binding.value && binding.value();
+          ele.__clickDocument__ = clickDocument;
+        }
+        function keyupEsc(event) {
+            if (event.keyCode === 27) binding.value && binding.value();
+        }
+        document.addEventListener('click', clickDocument);
+        if (binding.modifiers.esc) {
+          ele.__keyupEsc__ = keyupEsc;
+          document.addEventListener('keyup', keyupEsc);
+        }
+    }
+
+    Vue.directive('click-outside-to-close', {
+      bind: function (ele,binding) {
+        bindEvent(ele,binding);
+      },
+      unbind: function (ele,binding) {
+        document.removeEventListener('click', ele.__clickDocument__);
+        if (ele.__keyupEsc__) document.removeEventListener('keyup', ele.__keyupEsc__);
+      },
+      update: function (ele,binding) {
+        document.removeEventListener('click', ele.__clickDocument__);
+        if (ele.__keyupEsc__) document.removeEventListener('keyup', ele.__keyupEsc__);
+        bindEvent(ele,binding);
+      }
+    });
+    var app = new Vue({
+      el: '#app',
+      data: {
+        isShow: false,
+        isShowMenu: true
+      },
+      methods: {
+        toggleShow: function () {
+          this.isShow = !this.isShow;
+        },
+        closeMenu: function () {
+          this.isShow = false;
+        },
+        toggleMenu: function () {
+          this.isShowMenu = !this.isShowMenu;
+        }
+      },
+      computed: {
+
+      },
+      mounted: function() {
+        var _this = this;
+        var time = 0;
+        setInterval(function () {
+          _this.closeMenu = function () {
+            _this.isShow = false;
+            console.log('事件已改变,当前序号为：' + time);
+          }
+          time++;
+        }, 1000);
+      }
+    });
+  </script>
+</body>
+</html>

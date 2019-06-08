@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 36px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/main.css">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <!-- <select v-model="select"> -->
+    <select multiple v-model= "select">  <!--v-model在没有value属性时替换成option的文本内容，且在有multiple属性时将绑定的属性替换为数组-->
+      <option value="apple">苹果</option>
+      <option value="banana">香蕉</option>
+      <option value="orange">橘子</option>
+      <option>这是没有Value的选项</option>
+    </select>
+    <p>
+      <span>选项是:</span>
+      <span v-text="select"></span>
+    </p>
+  </div>
+  <script src="./vue.js"></script>
+  <script src="./js/easy.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        select: ''
+      },
+      methods: {
+
+      },
+      computed: {
+
+      },
+      mounted: function() {
+
+      }
+    });
+  </script>
+</body>
+</html>

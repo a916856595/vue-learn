@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <input type="radio" value="apple" v-model="value"><span>苹果</span>
+    <input type="radio" value="banana" v-model="value"><span>香蕉</span>
+    <input type="radio" value="orange" v-model="value"><span>橙子</span>
+
+    <p>
+      <span>当前选择:</span>
+      <span v-text="value"></span>
+    </p>
+  </div>
+  
+  <script src="./vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        value: ''
+      },
+      methods: {
+
+      },
+      computed: {
+
+      },
+      mounted: function () {
+
+      }
+    });
+  </script>
+</body>
+</html>

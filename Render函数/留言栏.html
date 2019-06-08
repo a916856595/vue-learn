@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 36px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <title>Document</title>
+  <style>
+    .talk-input {
+      width: 200px;
+    }
+    .talk-input * {
+      width: 100%;
+      border: 1px solid #999;
+      border-radius: 3px;
+      margin-bottom: 5px !important;
+      box-sizing: border-box;
+    }
+    .talk-input *[disabled=true] {
+      background-color: #999;
+    }
+    .talk-input input[type=button] {
+      background-color: #ddd;
+    }
+    .talk-hository {
+      width: 200px;
+    }
+    .talk-hository li {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <talk-input @submit="changeList" :disabled="isBanInput" :talk-detail-saved="tempDetail"></talk-input>
+    <talk-history :content-list="contentList" @choose="chooseDetail"></talk-history>
+  </div>
+  <script src="../vue.js"></script>
+  <script src="../js/easy.js"></script>
+  <script>
+    // Vue.component('talk-history', {
+    //   template: `
+    //   <div class="talk-hository">
+    //     <ul>
+    //       <li v-for="(talkDetail, index) in contentList" class="clearfix">
+    //         <p>
+    //           <span v-text="talkDetail.name"></span><span>:</span>
+    //           <span v-text="talkDetail.content"></span>
+    //         </p>
+    //         <input type="button" value="回复" class="fr" @click="chooseTalkInfo(talkDetail, index)">
+    //       </li>
+    //     </ul>
+    //   </div>
+    //   `,
+    //   data: function () {
+    //     return {
+
+    //     }
+    //   },
+    //   props: {
+    //     contentList: {
+    //       type: Array,
+    //       default: []
+    //     }
+    //   },
+    //   methods: {
+    //     chooseTalkInfo: function (talkDetail, index) {
+    //       this.$emit('choose', {
+    //         talkDetail: talkDetail,
+    //         index: index
+    //       });
+    //     }
+    //   }
+    // });
+
+    Vue.component('talk-history', {
+      render: function (createElement) {
+        var _this = this;
+        return createElement('div', { attrs: { class: 'talk-hository' } }, [createElement('ul', this.contentList.map(function (item, index) {
+          return createElement('li', { attrs: { class: 'clearfix' } }, [createElement('p', [createElement('span', item.name), createElement('span', ':'), createElement('span', item.content)]), createElement('input', { attrs: { type: 'button', class: 'fr', value: '回复' }, on: { click: function () { _this.chooseTalkInfo(item, index) } }})])
+        }))]);
+      },
+      // template: `
+      // <div class="talk-hository">
+      //   <ul>
+      //     <li v-for="(talkDetail, index) in contentList" class="clearfix">
+      //       <p>
+      //         <span v-text="talkDetail.name"></span><span>:</span>
+      //         <span v-text="talkDetail.content"></span>
+      //       </p>
+      //       <input type="button" value="回复" class="fr" @click="chooseTalkInfo(talkDetail, index)">
+      //     </li>
+      //   </ul>
+      // </div>
+      // `,
+      data: function () {
+        return {
+
+        }
+      },
+      props: {
+        contentList: {
+          type: Array,
+          default: []
+        }
+      },
+      methods: {
+        chooseTalkInfo: function (talkDetail, index) {
+          this.$emit('choose', {
+            talkDetail: talkDetail,
+            index: index
+          });
+        }
+      }
+    });
+
+    // Vue.component('talk-input', {
+    //   template: `
+    //   <div class="talk-input">
+    //     <input type="text" v-model="talkDetail.name" placeholder="请输入昵称" :disabled="disabled">
+    //     <textarea ref="textarea" v-model="talkDetail.content" placeholder="请输入内容" :disabled="disabled"></textarea>
+    //     <input type="button" value="提交" @click="submitInfo" :disabled="disabled">
+    //   </div>
+    //   `,
+    //   data: function () {
+    //     return {
+    //       talkDetail: {
+    //         name: '',
+    //         content: ''
+    //       }
+    //     };
+    //   },
+    //   props: {
+    //     disabled: {
+    //       type: Boolean
+    //     },
+    //     talkDetailSaved: {
+    //       type: Object,
+    //       default: {}
+    //     }
+    //   },
+    //   methods: {
+    //     submitInfo: function () {
+    //       this.$emit('submit', this.talkDetail);
+    //     }
+    //   },
+    //   mounted: function () {
+    //     this.talkDetail = this.talkDetailSaved;
+    //   },
+    //   watch: {
+    //     talkDetailSaved: function () {
+    //       var _this = this;
+    //       this.talkDetail = this.talkDetailSaved;
+    //       this.$nextTick(function () {
+    //         _this.$refs.textarea.focus();
+    //       })
+    //     }
+    //   }
+    // });
+
+
+    Vue.component('talk-input', {
+      render: function (createElement) {
+        var _this = this;
+        return createElement('div', { attrs: { class: 'talk-input' } }, [createElement('input', { ref: 'input', attrs: { placeholder:'请输入昵称', disabled: this.disabled }, on: { input: function (event) {
+          _this.talkDetail.name = event.target.value;
+        } } }),
+          createElement('textarea', { ref: 'textarea', attrs: { placeholder:'请输入内容', disabled: this.disabled }, on: { input: function (event) {
+          _this.talkDetail.content = event.target.value;
+        } } }),
+          createElement('input', { attrs: { placeholder:"请输入昵称", disabled: this.disabled, type: 'button', value: '提交' }, on: { click: this.submitInfo } })
+        ])
+      },
+      data: function () {
+        return {
+          talkDetail: {
+            name: '',
+            content: ''
+          }
+        };
+      },
+      props: {
+        disabled: {
+          type: Boolean
+        },
+        talkDetailSaved: {
+          type: Object,
+          default: {}
+        }
+      },
+      methods: {
+        submitInfo: function () {
+          this.$emit('submit', this.talkDetail);
+        }
+      },
+      mounted: function () {
+        this.talkDetail = this.talkDetailSaved;
+        this.$refs.input.value = this.talkDetail.name ? this.talkDetail.name : '';
+        this.$refs.textarea.value = this.talkDetail.content ? this.talkDetail.content : '';
+      },
+      watch: {
+        talkDetailSaved: function () {
+          var _this = this;
+          this.talkDetail = this.talkDetailSaved;
+          this.$refs.input.value = '';
+          this.$refs.textarea.value = this.talkDetail.content ? this.talkDetail.content : '';
+          this.$nextTick(function () {
+            _this.$refs.textarea.focus();
+          })
+        }
+      }
+    });
+
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        talkInfo: {},
+        isBanInput: true,
+        insertIndex: 0,
+        tempDetail: {},
+        contentList: [{
+          name: '大华',
+          content: '今天天气真不错'
+        },{
+          name: '李四',
+          content: '是个适合出去玩的日子'
+        }]
+      },
+      methods: {
+        chooseDetail: function (detailInfo) {
+          this.tempDetail = {
+            name: '',
+            content: '回复@' + detailInfo.talkDetail.name + ' '
+          };
+          this.insertIndex = detailInfo.index + 1;
+          this.isBanInput = false;
+        },
+        changeList: function (changeInfo) {
+          if (changeInfo.name === '' || changeInfo.name === undefined) return console.log('请输入昵称');
+          this.contentList.splice(this.insertIndex, 0, changeInfo);
+          this.tempDetail = {};
+          this.isBanInput = true;
+        }
+      },
+      computed: {
+
+      },
+      mounted: function() {
+
+      }
+    });
+  </script>
+</body>
+</html>

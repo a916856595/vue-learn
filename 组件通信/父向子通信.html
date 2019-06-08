@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 36px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <p>
+      <span>从这里传递数据</span>
+      <input type="text" v-model="text">
+    </p>
+    <p>
+      <span>静态组件</span>
+      <static-component data="这样的写法是静态数据"></static-component>
+    </p>
+    <p>
+      <span>活动组件</span>
+      <active-component v-bind:data="text"></active-component>
+    </p>
+
+    
+  </div>
+  <script src="../vue.js"></script>
+  <script src="../js/easy.js"></script>
+  <script>
+    Vue.component('static-component', {
+      template: '<div>子组件内容为<span v-text="data"></span></div>',
+      props: ['data']
+    });
+
+    Vue.component('active-component', {
+      template: '<div>子组件内容为<span v-text="data"></span></div>',
+      props: ['data']
+    });
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        text: ''
+      },
+      methods: {
+
+      },
+      computed: {
+
+      },
+      mounted: function() {
+
+      }
+    });
+  </script>
+</body>
+</html>

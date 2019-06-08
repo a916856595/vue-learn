@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 36px;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <title>Document</title>
+  <style>
+    table {
+      border-collapse: collapse;
+     
+    }
+    td {
+      border: 1px solid #000;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <sort-table :data-list="dataList"></sort-table>
+  </div>
+  <script src="../vue.js"></script>
+  <script src="../js/easy.js"></script>
+  <script>
+    function createThead(createElement, _this) {
+      return [createElement('tr', [
+        createElement('td', '序号'),
+        createElement('td', '名称'),
+        createElement('td', [createElement('span', '生产日期'), createElement('input', { ref: 'birthday-input', attrs: { value: '排序(' + _this.birthdaySort + ')', type: 'button' }, on: { click: _this.sortBirthday }})]),
+        createElement('td', [createElement('span', '价格'), createElement('input', { ref: 'price-input', attrs: { value: '排序(' + _this.priceSort + ')', type: 'button' }, on: { click: _this.sortPrice }})]),
+        createElement('td', '备注')])];
+    }
+
+    function createTbody(createElement, _this) {
+      return _this.dataSaved.map(function (item, index) {
+        return createElement('tr', [
+        createElement('td', index + 1),
+        createElement('td', item.name),
+        createElement('td', item.birthday),
+        createElement('td', item.price),
+        createElement('td', item.remark)])
+      });
+    }
+
+    Vue.component('sort-table', {
+      render: function (createElement) {
+        var _this = this;
+        return createElement('table', [createElement('thead', createThead(createElement, _this)), createElement('tbody', createTbody(createElement, _this))])
+      },
+      // template: `
+      // <table>
+      //   <thead>
+      //       <tr>
+      //         <td>序号</td>
+      //         <td>名称</td>
+      //         <td><span>生产日期</span><input @click="sortBirthday" :value="'排序(' + birthdaySort + ')'" type="button"></td>
+      //         <td><span>价格</span><input @click="sortPrice" :value="'排序(' + priceSort + ')'" type="button"></td>
+      //         <td>备注</td>
+      //       </tr>
+      //   </thead>
+      //   <tbody>
+      //     <tr v-for="(goodsInfo, index) in dataSaved">
+      //       <td v-text="index + 1"></td>
+      //       <td v-text="goodsInfo.name"></td>
+      //       <td v-text="goodsInfo.birthday"></td>
+      //       <td v-text="goodsInfo.price"></td>
+      //       <td v-text="goodsInfo.remark"></td>
+      //     </tr>
+      //   </tbody>
+      // </table>
+      // `,
+      props: {
+        dataList: {
+          type: Array,
+          required: true
+        }
+      },
+      data: function () {
+        return {
+          dataSaved: [],
+          birthdaySort: '无',
+          priceSort: '无',
+        }
+      },
+      methods: {
+        sortBirthday: function () {
+          var _this = this;
+          this.priceSort = '无';
+          if (this.birthdaySort === '无') {
+            this.birthdaySort = '升序'
+          } else if (this.birthdaySort === '升序') {
+            this.birthdaySort = '降序';
+          } else {
+            this.birthdaySort = '升序';
+          }
+          this.dataSaved.sort(function(a,b) {
+            var birthdayCompareResult = _this.compareBirthday(a.birthday,b.birthday);
+            if (birthdayCompareResult === 1) {
+              return _this.birthdaySort === '升序' ? 1 : -1;
+            }
+            if (birthdayCompareResult === -1) {
+              return _this.birthdaySort === '升序' ? -1 : 1;
+            }
+            return 0;
+          });
+        },
+        sortPrice: function () {
+          var _this = this;
+          this.birthdaySort = '无';
+          if (this.priceSort === '无') {
+            this.priceSort = '升序'
+          } else if (this.priceSort === '升序') {
+            this.priceSort = '降序';
+          } else {
+            this.priceSort = '升序';
+          }
+          this.dataSaved.sort(function(a,b) {
+            if (a.price > b.price) {
+              return _this.priceSort === '升序' ? 1 : -1;
+            }
+            if (a.price < b.price) {
+              return _this.priceSort === '升序' ? -1 : 1;
+            }
+            return 0;
+          })
+        },
+        compareBirthday: function (a,b) {
+          var timeArrA = a.split('-');
+          var timeArrB = b.split('-');
+          var bigIndex = '';
+          var smallIndex = '';
+          timeArrA.forEach(function (itemA, indexA) {
+            timeArrB.forEach(function (itemB, indexB) {
+              if (itemA > itemB && bigIndex === '') {
+                bigIndex = indexA;
+              }
+              if (itemA < itemB && smallIndex === '') {
+                smallIndex = indexA;
+              }
+            });
+          });
+          if (bigIndex === '' && smallIndex === '') {
+            return 0;
+          } else if ((bigIndex !== 0 && smallIndex === '') || bigIndex < smallIndex) {
+            return 1;
+          } else {
+            return -1;
+          }
+        },
+      },
+  
+      mounted: function () {
+        this.dataSaved = this.dataList.map(function (item) {
+          return item;
+        })
+      }
+    })
+    var app = new Vue({
+      el: '#app',
+      data: {
+        dataList: [{
+          name: '蜘蛛侠手办',
+          birthday: '1994-02-01',
+          price: 128,
+          remark: '不错的手办'
+        },{
+          name: '钢铁侠手办',
+          birthday: '2019-02-01',
+          price: 128,
+          remark: '不错的手办'
+        },{
+          name: '小米笔记本',
+          birthday: '2019-02-01',
+          price: 3999,
+          remark: '精致的笔记本'
+        },{
+          name: '红米手机',
+          birthday: '1999-02-18',
+          price: 1199,
+          remark: '国民手机'
+        },{
+          name: '海贼王床单',
+          birthday: '2011-12-11',
+          price: 99,
+          remark: '热血床单'
+        }]
+      },
+      methods: {
+
+      },
+      computed: {
+
+      },
+      mounted: function() {
+
+      }
+    });
+  </script>
+</body>
+</html>
