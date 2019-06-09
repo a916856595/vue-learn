@@ -1,8 +1,15 @@
 <template>
   <div>
+    <router-link to="/useVuexState">
+      <span>useVuexState</span>
+    </router-link>
+    <router-link to="/useVuexGetter">
+      <span>useVuexGetter</span>
+    </router-link>
+    <router-link to="/useVuexAction">
+      <span>useVuexAction</span>
+    </router-link>
     <router-view></router-view>
-    <router-link to="/a">去a</router-link>
-    <router-link to="/b">去b</router-link>
   </div>
 </template>
 
