@@ -9,6 +9,9 @@
     <router-link to="/useVuexAction">
       <span>useVuexAction</span>
     </router-link>
+    <router-link to="/useVueBus">
+      <span>useVueBus</span>
+    </router-link>
     <router-view></router-view>
   </div>
 </template>

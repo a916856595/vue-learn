@@ -2,9 +2,11 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import App from './app.vue';
 import Vuex from 'vuex';
+import Bus from './src/plugins/bus.js';
 
 Vue.use(VueRouter);
 Vue.use(Vuex);
+Vue.use(Bus);
 
 const store = new Vuex.Store({
   state: {
@@ -28,7 +30,17 @@ const store = new Vuex.Store({
     findLessTenListLength: (state, getter) => {
       return getter.findLessTen.length;
     }
-  } 
+  },
+  actions: {
+    changeCountDelayWithDelay (context, args) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          context.commit('changeCount', args.value);
+          resolve();
+        }, 1000);
+      });
+    }
+  }
 });
 
 const routers = [{
@@ -40,6 +52,9 @@ const routers = [{
 }, {
   path: '/useVuexAction',
   component: (resolve) => require(['./src/useVuexAction.vue'], resolve)
+}, {
+  path: '/useVueBus',
+  component: (resolve) => require(['./src/useVueBus.vue'], resolve)
 }, {
   path: '*',
   redirect: '/useVuexState'
