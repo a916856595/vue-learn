@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<div id="app"></div>
+<script src="render.js"></script>
+<script>
+  const functionComponent = function() {
+    return {
+      tag: 'div',
+      children: '函数组件'
+    }
+  };
+
+  const objectComponent = {
+    render() {
+      return {
+        tag: 'div',
+        children: '对象组件'
+      }
+    }
+  }
+
+  const subFunctionComponent = function() {
+    return {
+      tag: 'div',
+      props: {
+        style: 'padding-left: 15px;'
+      },
+      children: [
+        {
+          tag() {
+            return {
+              tag: 'div',
+              children: '孙级函数组件'
+            }
+          }
+        }
+      ]
+    }
+  };
+
+  const vnode = {
+    tag: 'ul',
+    children: [
+      {
+        tag: 'li',
+        props: { id: 1 },
+        children: '1',
+      },
+      {
+        tag: 'li',
+        props: { id: 2 },
+        children: '2',
+      },
+      {
+        tag: 'li',
+        props: { id: 3 },
+        children: [
+          {
+            tag: 'ul',
+            children: [
+              {
+                tag: 'li',
+                props: { id: '3-1' },
+                children: '3-1',
+              },
+              {
+                tag: 'li',
+                props: { id: '3-2' },
+                children: '3-2',
+              },
+              {
+                tag: 'li',
+                props: { id: '3-3' },
+                children: '3-3',
+              },
+            ]
+          }
+        ],
+      },
+      {
+        tag: functionComponent,
+      },
+      {
+        tag: objectComponent,
+      },
+      {
+        tag: subFunctionComponent,
+      },
+    ]
+  };
+  const container = document.querySelector('#app');
+
+  render(vnode, container);
+</script>
+</body>
+</html>
