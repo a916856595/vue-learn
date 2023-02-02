@@ -1,4 +1,4 @@
-// page 56
+// page 60
 
 // 要解决多余副作用函数的问题，需要在每次副作用函数执行时将其从集合中删除
 
@@ -10,7 +10,7 @@ const effectStack = [];
 const bucket = new WeakMap();
 
 // 触发绑定映射关系函数
-function effect(fn) {
+function effect(fn, options = {}) {
   const doEffect = function() {
     // 执行副作用前清空对当前副作用的引用
     cleanup(doEffect);
@@ -28,6 +28,8 @@ function effect(fn) {
 
   // doEffect.dependence用于存储包含此副作用函数的集合,用于清除集合中的effect
   doEffect.dependence = [];
+  // 将参数挂载到副作用函数
+  doEffect.options = options;
   // 开始执行
   doEffect();
 }
@@ -87,9 +89,19 @@ function trigger(target, key) {
 
   // doEffect()中会调用cleanup清除副作用，随后fn又重新添加副作用，最终导致effectSet无限循环
   // 因此需要使用新的Set集合来执行循环，避免无限循环。详见 page 55
-  const effectSetCloned = new Set(effectSet);
+  const effectSetCloned = new Set();
+  // 如果当前要执行的副作用与记录值activeEffect一致，则不执行，避免递归调用副作用
+  effectSet.forEach(effect => {
+    if (effect !== activeEffect) effectSetCloned.add(effect);
+  });
   // 依次触发副作用函数
-  effectSetCloned.forEach(effect => effect());
+  effectSetCloned.forEach(effect => {
+    const { scheduler } = effect.options;
+    // 如果有调度函数，调用调度函数，并将副作用作为参数
+    if (scheduler) scheduler(effect);
+    // 原逻辑，直接调用副作用
+    else effect();
+  });
 }
 
 
@@ -106,6 +118,8 @@ function useProxy(data) {
       Reflect.set(target, key, receiver);
       // 需要先设置键值后再触发副作用函数，否则会使用代理对象的旧键值
       trigger(target, key);
+      // set需要返回true，否则严格模式下会报错
+      return true;
     },
   });
 }

@@ -1,27 +1,52 @@
-// page 50
+// page 60
 
 // 要解决多余副作用函数的问题，需要在每次副作用函数执行时将其从集合中删除
 
 // 临时存储副作用函数
 let activeEffect;
+// 存储副作用函数的栈
+const effectStack = [];
 // 对象与副作用函数的对应关系
 const bucket = new WeakMap();
 
-// 触发绑定映射关系函数
-function effect(fn) {
+/**
+ * 绑定对象与副作用的映射关系
+ * @param {Function} fn 副作用函数
+ * @param {Object} options 副作用选项
+ * @param {Function} [options.scheduler] 调度函数，回调参数是副作用函数
+ * @param {boolean} [options.lazy] 是否延迟调用副作用，默认false直接调用
+ */
+function effect(fn, options = {}) {
+  const { lazy = false } = options;
+
   const doEffect = function() {
     // 执行副作用前清空对当前副作用的引用
     cleanup(doEffect);
     // 存储副作用函数及dependence的引用
     activeEffect = doEffect;
-    // 调用副作用函数以触发代理的getter
-    fn();
+    // 将副作用函数存入栈中，以支持嵌套effect
+    effectStack.push(activeEffect);
+    // 调用副作用函数以触发代理的getter（收集副作用），并保存结果
+    const result = fn();
+    // 在副作用收集完成后，移除栈中的最后一项
+    effectStack.pop();
+    // 将副作用记录值更新为上层的副作用，这样就能支持嵌套的effect
+    activeEffect = effectStack[effectStack.length - 1];
+    // 包装函数返回副作用的返回值，可以用于计算属性
+    return result;
   }
 
   // doEffect.dependence用于存储包含此副作用函数的集合,用于清除集合中的effect
   doEffect.dependence = [];
-  // 开始执行
-  doEffect();
+  // 将参数挂载到副作用函数
+  doEffect.options = options;
+  if (lazy) {
+    // 如果是延迟调用，则返回副作用的包装函数
+    return doEffect;
+  } else {
+    // 非延迟则直接调用副作用包装函数
+    doEffect();
+  }
 }
 
 // 清空缓存的副作用函数绑定的依赖集合
@@ -79,9 +104,19 @@ function trigger(target, key) {
 
   // doEffect()中会调用cleanup清除副作用，随后fn又重新添加副作用，最终导致effectSet无限循环
   // 因此需要使用新的Set集合来执行循环，避免无限循环。详见 page 55
-  const effectSetCloned = new Set(effectSet);
+  const effectSetCloned = new Set();
+  // 如果当前要执行的副作用与记录值activeEffect一致，则不执行，避免递归调用副作用
+  effectSet.forEach(effect => {
+    if (effect !== activeEffect) effectSetCloned.add(effect);
+  });
   // 依次触发副作用函数
-  effectSetCloned.forEach(effect => effect());
+  effectSetCloned.forEach(effect => {
+    const { scheduler } = effect.options;
+    // 如果有调度函数，调用调度函数，并将副作用作为参数
+    if (scheduler) scheduler(effect);
+    // 原逻辑，直接调用副作用
+    else effect();
+  });
 }
 
 
@@ -98,6 +133,15 @@ function useProxy(data) {
       Reflect.set(target, key, receiver);
       // 需要先设置键值后再触发副作用函数，否则会使用代理对象的旧键值
       trigger(target, key);
+      // set需要返回true，否则严格模式下会报错
+      return true;
     },
   });
+}
+
+export {
+  effect,
+  trigger,
+  track,
+  useProxy,
 }

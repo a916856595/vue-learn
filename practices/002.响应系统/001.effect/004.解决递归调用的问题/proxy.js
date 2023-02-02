@@ -110,6 +110,8 @@ function useProxy(data) {
       Reflect.set(target, key, receiver);
       // 需要先设置键值后再触发副作用函数，否则会使用代理对象的旧键值
       trigger(target, key);
+      // set需要返回true，否则严格模式下会报错
+      return true;
     },
   });
 }

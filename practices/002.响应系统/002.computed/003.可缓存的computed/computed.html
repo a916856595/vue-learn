@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<input type="number" id="input" value="0">
+<input type="number" id="input2" value="0">
+<p>
+  <span>计算结果：</span>
+  <span id="content"></span>
+</p>
+<script type="module">
+import { useProxy } from './proxy.js';
+import { computed } from './computed.js';
+
+const data  = {
+  num1: 0,
+  num2: 0,
+};
+const obj = useProxy(data);
+const sum = computed(() => {
+  console.log('computed');
+  return obj.num1 + obj.num2;
+});
+
+const setSum = () => {
+  document.querySelector('#content').innerText = sum.value;
+  // 多次取值调用了多次副作用函数，理想状态下，依赖项未改变时不触发computed
+  console.log(sum.value);
+  console.log(sum.value);
+  console.log(sum.value);
+};
+
+setSum();
+
+document.querySelector('#input').addEventListener('input', (event) => {
+  obj.num1 = event.target.value - 0;
+  setSum();
+});
+
+document.querySelector('#input2').addEventListener('input', (event) => {
+  obj.num2 = event.target.value - 0;
+  setSum();
+})
+</script>
+</body>
+</html>

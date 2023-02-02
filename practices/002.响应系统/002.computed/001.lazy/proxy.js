@@ -1,4 +1,4 @@
-// page 60
+// page 64
 
 // 要解决多余副作用函数的问题，需要在每次副作用函数执行时将其从集合中删除
 
@@ -9,8 +9,16 @@ const effectStack = [];
 // 对象与副作用函数的对应关系
 const bucket = new WeakMap();
 
-// 触发绑定映射关系函数
+/**
+ * 绑定对象与副作用的映射关系
+ * @param {Function} fn 副作用函数
+ * @param {Object} options 副作用选项
+ * @param {Function} options.scheduler 调度函数，回调参数是副作用函数
+ * @param {boolean} options.lazy 是否延迟调用副作用，默认false直接调用
+ */
 function effect(fn, options = {}) {
+  const { lazy = false } = options;
+
   const doEffect = function() {
     // 执行副作用前清空对当前副作用的引用
     cleanup(doEffect);
@@ -18,20 +26,27 @@ function effect(fn, options = {}) {
     activeEffect = doEffect;
     // 将副作用函数存入栈中，以支持嵌套effect
     effectStack.push(activeEffect);
-    // 调用副作用函数以触发代理的getter（收集副作用）
-    fn();
+    // 调用副作用函数以触发代理的getter（收集副作用），并保存结果
+    const result = fn();
     // 在副作用收集完成后，移除栈中的最后一项
     effectStack.pop();
     // 将副作用记录值更新为上层的副作用，这样就能支持嵌套的effect
     activeEffect = effectStack[effectStack.length - 1];
+    // 包装函数返回副作用的返回值，可以用于计算属性
+    return result;
   }
 
   // doEffect.dependence用于存储包含此副作用函数的集合,用于清除集合中的effect
   doEffect.dependence = [];
   // 将参数挂载到副作用函数
   doEffect.options = options;
-  // 开始执行
-  doEffect();
+  if (lazy) {
+    // 如果是延迟调用，则返回副作用的包装函数
+    return doEffect;
+  } else {
+    // 非延迟则直接调用副作用包装函数
+    doEffect();
+  }
 }
 
 // 清空缓存的副作用函数绑定的依赖集合
@@ -118,6 +133,8 @@ function useProxy(data) {
       Reflect.set(target, key, receiver);
       // 需要先设置键值后再触发副作用函数，否则会使用代理对象的旧键值
       trigger(target, key);
+      // set需要返回true，否则严格模式下会报错
+      return true;
     },
   });
 }
