@@ -13,25 +13,26 @@
   <span>输入框内容：</span>
   <span id="content"></span>
 </p>
-<input type="text" id="input2">
-<p>
-  <span>输入框2内容：</span>
-  <span id="content2"></span>
-</p>
 <script src="proxy.js"></script>
 <script>
-  effect(() => {
+
+  // 需要代理的对象
+  const data = {
+    text: '',
+  };
+
+  // 代理对象
+  const obj = useProxy(data);
+
+
+    effect(() => {
     document.querySelector('#content').innerText = obj.text;
-  });
-  effect(() => {
-    document.querySelector('#content2').innerText = obj.text2;
   });
 
   document.querySelector('#input').addEventListener('input', (event) => {
+    // console.log(event.target.value);
     obj.text = event.target.value;
-  });
-  document.querySelector('#input2').addEventListener('input', (event) => {
-    obj.text2 = event.target.value;
+    console.log(data)
   });
 </script>
 </body>

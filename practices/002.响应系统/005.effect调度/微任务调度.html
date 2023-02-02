@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<script src="proxy.js"></script>
+<script>
+  // 需要代理的对象
+  const data = {
+    count: 0,
+  };
+
+  const obj = useProxy(data);
+
+  const jobQueue = new Set();
+  const resolved = Promise.resolve();
+  let working = false;
+  function flushJobs() {
+    if (working) return;
+    working = true;
+    resolved
+      .then(() => {
+        jobQueue.forEach(job => job());
+        jobQueue.clear();
+      })
+      .finally(() => {
+        working = false;
+      });
+  }
+
+  effect(function effectOne() {
+    console.log('do effect', obj.count);
+  }, {
+    scheduler(effect) {
+      jobQueue.add(effect);
+      flushJobs();
+    }
+  });
+
+  obj.count ++;
+  obj.count ++;
+  obj.count ++;
+  obj.count ++;
+
+  console.log('end')
+</script>
+</body>
+</html>

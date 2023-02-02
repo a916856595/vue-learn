@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<div>
+  <span>flag的值：</span>
+  <input type="radio" id="true" name="flag" value="true" checked>
+  <label for="true">true</label>
+  <input type="radio" id="false" name="flag" value="false">
+  <label for="false">false</label>
+</div>
+<input type="text" id="input">
+<p>
+  <span>flag的值为false时，不应触发副作用函数</span>
+</p>
+<p>
+  <span>输入框内容：</span>
+  <span id="content"></span>
+</p>
+<script src="proxy.js"></script>
+<script>
+  // 需要代理的对象
+  const data = {
+    flag: true,
+    text: '',
+  };
+
+  const obj = useProxy(data);
+
+  effect(() => {
+    // 当obj.flag为false时，预期不执行此函数，但事实并非如此。
+    console.log('执行副作用函数');
+    document.querySelector('#content').innerText = obj.flag ? obj.text : 'should not update';
+  });
+
+  document.querySelector('#true').addEventListener('change', (event) => {
+    obj.flag = true;
+  });
+
+  document.querySelector('#false').addEventListener('change', (event) => {
+    obj.flag = false;
+  });
+
+  document.querySelector('#input').addEventListener('input', (event) => {
+    obj.text = event.target.value;
+  });
+</script>
+</body>
+</html>

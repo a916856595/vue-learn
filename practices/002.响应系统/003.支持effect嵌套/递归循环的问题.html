@@ -8,20 +8,18 @@
   <title>Document</title>
 </head>
 <body>
-<input type="text" id="input">
-<p>
-  <span>输入框内容：</span>
-  <span id="content"></span>
-</p>
 <script src="proxy.js"></script>
 <script>
-  effect(() => {
-    document.querySelector('#content').innerText = obj.text;
-  });
+  // 需要代理的对象
+  const data = {
+    count: 0,
+  };
 
-  document.querySelector('#input').addEventListener('input', (event) => {
-    // console.log(event.target.value);
-    obj.text = event.target.value;
+  const obj = useProxy(data);
+
+  effect(function effectOne() {
+    console.log('do effect');
+    obj.count = obj.count + 1;
   });
 </script>
 </body>
