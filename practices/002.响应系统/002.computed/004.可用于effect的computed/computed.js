@@ -1,6 +1,8 @@
 // page 70
 import { effect, trigger, track } from './proxy.js';
 
+// computed无法用于effect的原因是computed，value的对象及属性未被track及trigger
+// 因此需要在effect computed值时设置track，并在读取value时触发trigger
 /**
  * 计算属性
  * @param {Function} getter 包含依赖项的计算函数
