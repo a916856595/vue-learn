@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<input type="text" id="input" value="初始值">
+<p>
+  <span>通过监听设置的结果：</span>
+  <span id="content"></span>
+</p>
+<script type="module">
+import { useProxy } from './proxy.js';
+import { watch } from './watch.js';
+
+const data  = {
+  text: '初始值',
+};
+const obj = useProxy(data);
+
+const setContent = (text) => {
+  document.querySelector('#content').innerText = text;
+};
+
+document.querySelector('#input').addEventListener('input', (event) => {
+  obj.text = event.target.value;
+  console.log('如果flush设置为post，这行代码会在watch回调之前执行');
+});
+
+watch(() => obj.text, (oldValue, newValue) => {
+  console.log('调用watch回调', oldValue, newValue);
+  setContent(newValue);
+}, {
+  // immediate: true,
+  flush: 'post',
+});
+
+
+</script>
+</body>
+</html>

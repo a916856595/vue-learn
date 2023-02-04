@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<button id="increase">执行数据自增</button>
+<script type="module">
+import { useProxy } from './proxy.js';
+import { watch } from './watch.js';
+
+const data  = {
+  num: 0,
+};
+const obj = useProxy(data);
+let flag = false;
+
+const setContent = (text) => {
+  document.querySelector('#content').innerText = text;
+};
+
+document.querySelector('#increase').addEventListener('click', (event) => {
+  obj.num ++;
+  obj.num ++;
+});
+
+watch(() => obj.num, (oldValue, newValue) => {
+  let tempFlag = flag;
+  setTimeout(() => {
+    console.log(`预期这行代码${tempFlag ? '' : '不'}要执行`);
+  }, tempFlag ? 500 : 1000);
+  flag = !flag;
+}, {
+
+});
+
+
+</script>
+</body>
+</html>
