@@ -22,6 +22,9 @@ effect(() => {
   }
 });
 
+// 多次更新已有属性会多次触发for...in的副作用，实际不需要
+obj.num2 = 1;
+obj.num2 = 1;
 obj.num2 = 1;
 
 </script>
