@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<script type="module">
+import { useProxy, effect } from './proxy.js';
+
+const data  = {
+  num: 0,
+  num2: 0,
+};
+const obj = useProxy(data);
+
+effect(() => {
+  for (const key in obj) {
+    console.log('do for...in', key);
+  }
+});
+
+delete obj.num;
+
+</script>
+</body>
+</html>
