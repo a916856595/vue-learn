@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<script type="module">
+import { reactive, effect } from './proxy.js';
+
+const data  = {
+  box: {
+    inner: 0
+  }
+};
+const obj = reactive(data);
+
+effect(() => {
+  console.log('obj.box.inner', obj.box.inner);
+});
+
+// 期望副作用能执行，实际未执行
+obj.box.inner = 2;
+
+</script>
+</body>
+</html>
