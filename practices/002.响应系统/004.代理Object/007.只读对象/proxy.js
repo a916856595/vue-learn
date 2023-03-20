@@ -1,4 +1,4 @@
-// page 108
+// page 110
 
 // 深层次的对象也应当实现响应
 
@@ -150,7 +150,7 @@ function trigger(target, key, type) {
 }
 
 // *** 由原reactive方法更新，能同时支持深（isShallow = false）、浅响应(isShallow = true)
-function createReactive(data, isShallow = false) {
+function createReactive(data, isShallow = false, isReadonly = false) {
   return new Proxy(data, {
     // 拦截属性读取操作
     get(target, key, receiver) {
@@ -158,21 +158,28 @@ function createReactive(data, isShallow = false) {
       if (key === 'raw') {
         return target;
       }
-      // 追踪属性读取
-      track(target, key);
-      // +++ 获取代理结果
-      const value = Reflect.get(target, key, receiver);
-      // +++ 如果不是浅响应，并且代理结果是对象时，返回响应式对象
-      if (!isShallow && typeof value === 'object' && value !== null) {
-        return reactive(value)
+      // *** 追踪属性读取，只读对象不需要追踪
+      if (!isReadonly) {
+        track(target, key);
       }
-      // *** 返回非响应式的结果
+      // 获取代理结果
+      const value = Reflect.get(target, key, receiver);
+      // 如果不是浅响应，并且代理结果是对象时，返回响应式对象
+      if (!isShallow && typeof value === 'object' && value !== null) {
+        return isReadonly ? readonly(value) : reactive(value)
+      }
+      // 返回非响应式的结果
       return value;
     },
     // 拦截属性设置操作
     set(target, key, newValue, receiver) {
+      // +++ 尝试修改只读对象时，给出提示
+      if (isReadonly) {
+        console.warn(`属性${key}是只读的`);
+        return true;
+      }
       // 将值更新到对象之前，记录对象是否具有该属性
-      const type = target.hasOwnProperty(key) ? triggerType.UPDATE : triggerType.ADD;
+      const type = Object.prototype.hasOwnProperty.call(target, key) ? triggerType.UPDATE : triggerType.ADD;
       // 获取旧的属性值
       const oldValue = target[key];
       // 判断新旧值是否相等，且新旧值均不能为NaN
@@ -204,6 +211,11 @@ function createReactive(data, isShallow = false) {
     },
     // 拦截对象delete操作
     deleteProperty(target, key, receiver) {
+      // +++ 尝试修改只读对象时，给出提示
+      if (isReadonly) {
+        console.warn(`属性${key}是只读的`);
+        return true;
+      }
       // 判断是否对象自身具有的属性
       const isOwnProperty = target.hasOwnProperty(key);
       // 获取删除操作的结果，操作成功返回true
@@ -217,11 +229,19 @@ function createReactive(data, isShallow = false) {
 }
 
 function reactive(data) {
-  return createReactive(data)
+  return createReactive(data);
 }
 
 function shallowReactive(data) {
-  return createReactive(data, true)
+  return createReactive(data, true);
+}
+
+function readonly(data) {
+  return createReactive(data, false, true);
+}
+
+function shallowReadonly(data) {
+  return createReactive(data, true, true);
 }
 
 export {
@@ -230,4 +250,6 @@ export {
   track,
   reactive,
   shallowReactive,
+  readonly,
+  shallowReadonly,
 }

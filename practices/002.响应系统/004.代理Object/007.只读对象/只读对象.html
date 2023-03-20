@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<script type="module">
+  import { readonly, shallowReadonly, effect } from './proxy.js';
+
+  const data  = {
+    box: {
+      inner: 0
+    }
+  };
+  const data2  = {
+    box: {
+      inner: 0
+    }
+  };
+  const deep = readonly(data);
+  const shallow = shallowReadonly(data2);
+
+  effect(() => {
+    console.log('触发外层响应 deep.box', deep.box);
+  });
+  effect(() => {
+    console.log('触发外层响应 shallow.box', shallow.box);
+  });
+  effect(() => {
+    console.log('触发内层响应 deep.box.inner', deep.box.inner);
+  });
+  effect(() => {
+    console.log('触发内层响应 shallow.box.inner', shallow.box.inner);
+  });
+
+  // 提示只读
+  deep.box = {}
+  // 提示只读
+  shallow.box = {}
+  // 提示只读
+  deep.box.inner = 2;
+  // 没有提示
+  shallow.box.inner = 2;
+
+</script>
+</body>
+</html>
