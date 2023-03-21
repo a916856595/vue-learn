@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<script type="module">
+  import { reactive, effect } from './proxy.js';
+
+  const arr = ['foo'];
+  const list = reactive(arr)
+
+  effect(() => {
+    console.log('arr', list.length);
+  });
+  effect(() => {
+    console.log('item', list[0]);
+  });
+  // 新增数组项，触发length相关的副作用
+  list[1] = 'bar';
+  // 修改length，触发length及关联数组项的副作用
+  list.length = 0;
+
+</script>
+</body>
+</html>
